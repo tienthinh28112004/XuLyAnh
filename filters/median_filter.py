@@ -1,4 +1,3 @@
-# median_filter.py
 import numpy as np
 
 def median_filter(gray: np.ndarray, ksize: int = 3) -> np.ndarray:

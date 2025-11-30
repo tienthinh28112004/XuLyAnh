@@ -1,16 +1,6 @@
-# sobel_filter.py
 import numpy as np
 
 def sobel_filter(gray: np.ndarray) -> np.ndarray:
-    """
-    Bộ lọc Sobel phát hiện biên (gradient theo x, y).
-    
-    Tham số:
-        gray : ảnh xám 2D numpy (H, W)
-    Trả về:
-        Ảnh biên (magnitude), float32, cùng kích thước (H, W)
-    """
-
     if gray.ndim != 2:
         raise ValueError("sobel_filter chỉ xử lý ảnh xám 2D (H, W).")
 
@@ -18,17 +8,15 @@ def sobel_filter(gray: np.ndarray) -> np.ndarray:
     H, W = g.shape
 
     # Kernel Sobel
-    kernel_x = np.array([
-        [-1, 0, 1],
-        [-2, 0, 2],
-        [-1, 0, 1]
-    ], dtype=np.float32)
+    kernel_x = np.array([[-1, 0, 1],
+                        [-2, 0, 2],
+                        [-1, 0, 1]],
+    dtype=np.float32)
 
-    kernel_y = np.array([
-        [-1, -2, -1],
-        [ 0,  0,  0],
-        [ 1,  2,  1]
-    ], dtype=np.float32)
+    kernel_y = np.array([[-1, -2, -1],
+                        [ 0,  0,  0],
+                        [ 1,  2,  1]], 
+    dtype=np.float32)
 
     pad = 1  # vì kernel 3x3
     padded = np.pad(g, pad_width=pad, mode="edge")

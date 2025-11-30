@@ -1,4 +1,3 @@
-# mean_filter.py (phiên bản tự viết, không dùng cv2)
 import numpy as np
 
 def mean_filter(gray: np.ndarray, ksize: int = 3) -> np.ndarray:

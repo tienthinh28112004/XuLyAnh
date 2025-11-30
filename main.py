@@ -1,16 +1,16 @@
-# main.py (fixed)
 import io, uuid
 from pathlib import Path
 import numpy as np
 from PIL import Image
 from flask import Flask, render_template, request, url_for, redirect, flash
 
-from mean_filter import mean_filter
-from gaussian_filter import gaussian_filter
-from median_filter import median_filter
-from sobel_filter import sobel_filter
-from prewitt_filter import prewitt_filter
-from laplacian_filter import laplacian_filter
+from filters.mean_filter import mean_filter
+from filters.gaussian_filter import gaussian_filter
+from filters.median_filter import median_filter
+from filters.sobel_filter import sobel_filter
+from filters.prewitt_filter import prewitt_filter
+from filters.laplacian_filter import laplacian_filter
+
 
 FILTERS = {
     "mean":      ("Mean",      mean_filter),
