@@ -1,34 +1,48 @@
+# sobel_filter.py
 import numpy as np
-from PIL import Image
 
-def sobel_filter(image_array):
-    height, width = image_array.shape
-    result = np.zeros((height - 2, width - 2))
-
-    kernel_x = np.array([[-1, 0, 1],
-                         [-2, 0, 2],
-                         [-1, 0, 1]])
+def sobel_filter(gray: np.ndarray) -> np.ndarray:
+    """
+    Bộ lọc Sobel phát hiện biên (gradient theo x, y).
     
-    kernel_y = np.array([[-1, -2, -1],
-                         [0,  0,  0],
-                         [1,  2,  1]])
-    
-    for i in range(height - 2):
-        for j in range(width - 2):
-            region = image_array[i:i+3, j:j+3]
-            sobel_x = np.sum(region * kernel_x)
-            sobel_y = np.sum(region * kernel_y)
-            result[i, j] = np.sqrt(sobel_x**2 + sobel_y**2)
-    
-    return result
+    Tham số:
+        gray : ảnh xám 2D numpy (H, W)
+    Trả về:
+        Ảnh biên (magnitude), float32, cùng kích thước (H, W)
+    """
 
-# Đọc ảnh
-img = Image.open('input/sobel_filter.jpg').convert('L')
-img_array = np.array(img, dtype=np.float32)
+    if gray.ndim != 2:
+        raise ValueError("sobel_filter chỉ xử lý ảnh xám 2D (H, W).")
 
-# Áp dụng Sobel filter
-sobel_edges = sobel_filter(img_array)
+    g = gray.astype(np.float32)
+    H, W = g.shape
 
-# Hiển thị kết quả
-sobel_edges_image = Image.fromarray(sobel_edges.astype(np.uint8))
-sobel_edges_image.show()
+    # Kernel Sobel
+    kernel_x = np.array([
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1]
+    ], dtype=np.float32)
+
+    kernel_y = np.array([
+        [-1, -2, -1],
+        [ 0,  0,  0],
+        [ 1,  2,  1]
+    ], dtype=np.float32)
+
+    pad = 1  # vì kernel 3x3
+    padded = np.pad(g, pad_width=pad, mode="edge")
+
+    out = np.zeros_like(g, dtype=np.float32)
+
+    # Tích chập thủ công Sobel
+    for i in range(H):
+        for j in range(W):
+            region = padded[i:i+3, j:j+3]
+
+            gx = np.sum(region * kernel_x)
+            gy = np.sum(region * kernel_y)
+
+            out[i, j] = np.sqrt(gx**2 + gy**2)
+
+    return out

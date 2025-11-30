@@ -1,24 +1,29 @@
+# mean_filter.py (phiên bản tự viết, không dùng cv2)
 import numpy as np
-from PIL import Image
 
-def mean_filter(image_array):
-    height, width = image_array.shape
-    result = np.zeros((height-2, width-2))
+def mean_filter(gray: np.ndarray, ksize: int = 3) -> np.ndarray:
+    if gray.ndim != 2:
+        raise ValueError("mean_filter chỉ xử lý ảnh xám 2D (H, W).")
 
-    kernel = np.ones((3,3)) / 9.0   # kernel 3x3 trung bình đều
+    if ksize % 2 == 0:
+        ksize += 1
+    if ksize < 3:
+        ksize = 3
 
-    for i in range(height-2):
-        for j in range(width-2):
-            region = image_array[i:i+3, j:j+3]
-            result[i,j] = np.sum(region * kernel)
-    
-    return result
+    g = gray.astype(np.float32)
+    pad = ksize // 2
 
-# Demo
-img = Image.open("input/mean_filter.jpg").convert("L")
-img_array = np.array(img, dtype=np.float32)
+    # Padding ảnh ở biên bằng replicate (lặp biên)
+    padded = np.pad(g, pad_width=pad, mode="edge")
 
-mean_img = mean_filter(img_array)
-mean_img_out = Image.fromarray(mean_img.astype(np.uint8))
-mean_img_out.show()
+    H, W = g.shape
+    out = np.zeros_like(g, dtype=np.float32)
 
+    kernel = np.ones((ksize, ksize), dtype=np.float32) / (ksize * ksize)
+
+    for i in range(H):
+        for j in range(W):
+            region = padded[i:i+ksize, j:j+ksize]
+            out[i, j] = np.sum(region * kernel)
+
+    return out

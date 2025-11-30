@@ -1,24 +1,30 @@
+# median_filter.py
 import numpy as np
-from PIL import Image
 
-def median_filter(image,kernel_size):
-    height,width = image.shape
-    result = np.zeros_like(image)
+def median_filter(gray: np.ndarray, ksize: int = 3) -> np.ndarray:
 
-    pad = kernel_size // 2
-    padded_image = np.pad(image,pad,mode='constant')
+    if gray.ndim != 2:
+        raise ValueError("median_filter chỉ xử lý ảnh xám 2D (H, W).")
 
-    for i in range(height):
-        for j in range(width):
-            window = padded_image[i:i+kernel_size,j:j+kernel_size]
-            result[i,j] = np.median(window)
+    # đảm bảo kernel là số lẻ >=3
+    if ksize % 2 == 0:
+        ksize += 1
+    if ksize < 3:
+        ksize = 3
 
-    return result
+    g = gray.astype(np.float32)
+    H, W = g.shape
+    
+    pad = ksize // 2
 
-img = Image.open('input/median_filter.jpg').convert('L')
-img_array = np.array(img)
+    # padding replicate để không bị viền đen
+    padded = np.pad(g, pad_width=pad, mode="edge")
 
-median_filtered_img = median_filter(img_array,kernel_size=3)
+    out = np.zeros_like(g, dtype=np.float32)
 
-filtered_img = Image.fromarray(median_filtered_img.astype(np.uint8))
-filtered_img.show()
+    for i in range(H):
+        for j in range(W):
+            region = padded[i:i+ksize, j:j+ksize]
+            out[i, j] = np.median(region)
+
+    return out

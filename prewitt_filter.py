@@ -1,35 +1,47 @@
+# prewitt_filter.py
 import numpy as np
-from PIL import Image
 
-def prewitt_filter(image_array):
-    height, width = image_array.shape
-    result = np.zeros((height - 2, width - 2))
+def prewitt_filter(gray: np.ndarray) -> np.ndarray:
+    """
+    Bộ lọc Prewitt phát hiện biên theo hướng x và y.
+    Trả về ảnh float32 cùng kích thước đầu vào.
 
-    kernel_x = np.array([[-1, 0, 1],
-                         [-1, 0, 1],
-                         [-1, 0, 1]])
+    - gray: ảnh xám 2D numpy (H, W)
+    - return: ảnh float32 (H, W)
+    """
 
-    kernel_y = np.array([[-1, -1, -1],
-                         [0, 0, 0],
-                         [1, 1, 1]])
+    if gray.ndim != 2:
+        raise ValueError("prewitt_filter chỉ xử lý ảnh xám 2D.")
 
-    for i in range(height - 2):
-        for j in range(width - 2):
-            region = image_array[i:i + 3, j:j + 3]
-            prewitt_x = np.sum(region * kernel_x)
-            prewitt_y = np.sum(region * kernel_y)
-            result[i, j] = np.sqrt(prewitt_x ** 2 + prewitt_y ** 2)
+    g = gray.astype(np.float32)
+    H, W = g.shape
 
-    return result
+    # Kernel Prewitt
+    kernel_x = np.array([
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1]
+    ], dtype=np.float32)
 
+    kernel_y = np.array([
+        [ 1,  1,  1],
+        [ 0,  0,  0],
+        [-1, -1, -1]
+    ], dtype=np.float32)
 
-# Đọc ảnh xám
-img = Image.open('input/prewitt_filter.jpg').convert('L')
-img_array = np.array(img, dtype=np.float32)
+    pad = 1
+    padded = np.pad(g, pad_width=pad, mode="edge")
 
-# Áp dụng Prewitt filter
-prewitt_edges = prewitt_filter(img_array)
+    out = np.zeros_like(g, dtype=np.float32)
 
-# Hiển thị kết quả
-prewitt_edges_image = Image.fromarray(prewitt_edges.astype(np.uint8))
-prewitt_edges_image.show()
+    # Tính gradient theo Prewitt
+    for i in range(H):
+        for j in range(W):
+            region = padded[i:i+3, j:j+3]
+
+            gx = np.sum(region * kernel_x)
+            gy = np.sum(region * kernel_y)
+
+            out[i, j] = np.sqrt(gx**2 + gy**2)
+
+    return out.astype(np.float32)
